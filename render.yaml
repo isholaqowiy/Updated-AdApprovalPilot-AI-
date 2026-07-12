@@ -22,9 +22,11 @@ services:
         value: gemini-2.5-flash
       - key: FREE_DAILY_SCAN_LIMIT
         value: "1"
+      - key: WEBSITE_URL
+        value: https://adapprovalpilot-ai-5woc1d.v2.appdeploy.ai
       - key: PYTHON_VERSION
         value: 3.11.9
 
 databases:
   - name: ad-approval-pilot-db
-    plan: starter
+    plan: basic-256mb
