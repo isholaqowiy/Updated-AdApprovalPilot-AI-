@@ -20,11 +20,15 @@ MAIN_MENU = InlineKeyboardMarkup(
     inline_keyboard=[
         [InlineKeyboardButton(text="📊 Channel Index", callback_data="channel_index")],
         [InlineKeyboardButton(text="🔧 Allow Bot to Fix My Channel/Group", callback_data="fix_mode")],
+        [InlineKeyboardButton(text="🌐 Open Full Compliance Dashboard", url=settings.website_url)],
     ]
 )
 
 REQUEST_ACCESS_KB = InlineKeyboardMarkup(
-    inline_keyboard=[[InlineKeyboardButton(text="🔑 Request Admin Access", callback_data="request_access")]]
+    inline_keyboard=[
+        [InlineKeyboardButton(text="🔑 Request Admin Access", callback_data="request_access")],
+        [InlineKeyboardButton(text="🌐 Preview the Compliance Scan", url=f"{settings.website_url}/#/scan")],
+    ]
 )
 
 
@@ -35,7 +39,8 @@ async def cmd_start(message: Message, db_user: User) -> None:
             "🚫 Access Restricted\n\n"
             "AdApprovalPilot AI is an invite-only Telegram Ads compliance tool.\n"
             "Your access is currently pending approval.\n\n"
-            f"Please contact admin: {settings.admin_handle}",
+            f"Please contact admin: {settings.admin_handle}\n\n"
+            "While you wait, you can try a live preview of the Channel Index scan on the web dashboard below.",
             reply_markup=REQUEST_ACCESS_KB,
         )
         return
@@ -85,7 +90,15 @@ async def handle_channel_link(message: Message, bot: Bot, db_user: User, state: 
     await state.clear()
 
     if db_user.role != "premium" and db_user.daily_scan_count >= settings.free_daily_scan_limit:
-        await message.answer("⛔ Daily scan limit reached for free tier. Upgrade to premium for unlimited scans.")
+        kb = InlineKeyboardMarkup(
+            inline_keyboard=[[InlineKeyboardButton(text="🌐 Run an unlimited scan on the web", url=f"{settings.website_url}/#/scan")]]
+        )
+        await message.answer(
+            "⛔ Daily scan limit reached for free tier.\n\n"
+            "The web dashboard runs the exact same Channel Index scan with no daily cap. "
+            f"Or ask {settings.admin_handle} about Premium for unlimited scans right here in the bot.",
+            reply_markup=kb,
+        )
         return
 
     status_msg = await message.answer(
@@ -142,9 +155,15 @@ async def handle_fix_channel(message: Message, bot: Bot, db_user: User, state: F
         fix = await get_or_create_fix_record(session, channel_identifier, db_user.id)
 
         if not fix.is_fix_authorized:
+            kb = InlineKeyboardMarkup(
+                inline_keyboard=[[InlineKeyboardButton(text="🌐 Preview a Fix Mode rewrite on the web", url=f"{settings.website_url}/#/fix")]]
+            )
             await message.answer(
                 "❌ This channel isn't authorized for Bot Fix Mode yet.\n"
-                f"Please contact {settings.admin_handle} to enable it."
+                f"Please contact {settings.admin_handle} to enable it.\n\n"
+                "In the meantime, you can see exactly what a compliant rewrite would look like on the web dashboard "
+                "— paste your current title and description there for an instant preview.",
+                reply_markup=kb,
             )
             return
 
@@ -175,4 +194,4 @@ async def handle_fix_channel(message: Message, bot: Bot, db_user: User, state: F
         f"New Description: {suggestion.optimized_description}\n\n"
         f"Why: {suggestion.rationale}\n\n"
         f"{posts_preview}"
-        )
+                           )
