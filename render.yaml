@@ -1,0 +1,30 @@
+services:
+  - type: worker
+    name: ad-approval-pilot-ai
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_ID
+        sync: false
+      - key: ADMIN_HANDLE
+        value: "@BlockSavvyMx"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ad-approval-pilot-db
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: FREE_DAILY_SCAN_LIMIT
+        value: "1"
+      - key: PYTHON_VERSION
+        value: 3.11.9
+
+databases:
+  - name: ad-approval-pilot-db
+    plan: starter
