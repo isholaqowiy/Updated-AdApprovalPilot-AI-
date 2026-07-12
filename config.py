@@ -15,6 +15,7 @@ class Settings:
     gemini_api_key: str
     gemini_model: str
     free_daily_scan_limit: int
+    website_url: str
     environment: str
 
 
@@ -40,6 +41,7 @@ def load_settings() -> Settings:
         gemini_api_key=_require("GEMINI_API_KEY"),
         gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
         free_daily_scan_limit=int(os.getenv("FREE_DAILY_SCAN_LIMIT", "1")),
+        website_url=os.getenv("WEBSITE_URL", "https://adapprovalpilot-ai-5woc1d.v2.appdeploy.ai").rstrip("/"),
         environment=os.getenv("ENVIRONMENT", "production"),
     )
 
